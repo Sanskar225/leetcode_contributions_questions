@@ -1,0 +1,54 @@
+
+Idea and Explanation
+The idea is simple:
+We iterate over each number in the array and check whether the sum of its digits at even positions equals the sum of its digits at odd positions.
+
+Positions are counted from right to left, where the rightmost digit has position 1 (odd).
+
+We can extract digits using:
+
+digit = num % 10 to get the current rightmost digit
+
+num /= 10 to move to the next digit
+
+We maintain two sums:
+
+oddSum → sum of digits at odd positions
+
+evenSum → sum of digits at even positions
+
+If oddSum == evenSum for a number, it is considered balanced.
+We repeat this for all elements and count how many are balanced.
+
+ Algorithm Steps
+
+Initialize count = 0
+
+For each number num in nums:
+
+Set oddSum = 0, evenSum = 0, and pos = 1
+
+While num > 0:
+
+Extract digit = num % 10
+
+If pos is odd → add to oddSum
+
+Else → add to evenSum
+
+Divide num by 10 → num /= 10
+
+Increment pos
+
+If oddSum == evenSum, increment count
+
+Return count
+
+Complexity Analysis
+
+Time Complexity: O(n * d) where d = number of digits (≤ 9)
+→ effectively O(n)
+
+Space Complexity: O(1) (only a few variables used)
+
+Code Implementation (C++)
