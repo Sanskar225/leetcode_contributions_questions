@@ -1,0 +1,21 @@
+I am contributing this question because it represents a realistic SQL pattern commonly encountered in production system monitoring and time-series analysis.
+
+While I have not seen this exact question in interviews, I have implemented similar logic in real DevOps and monitoring environments to detect consecutive server outages, anomaly streaks, and repeated failures from timestamped logs. This closely mirrors real-world observability and alerting use cases, where identifying extended downtime periods is critical for incident response.
+
+The problem teaches the classic “gaps and islands” pattern applied to temporal data and requires candidates to demonstrate proficiency in:
+
+• SQL window functions (such as LAG and running SUM)
+• Time-based interval validation
+• Conditional grouping across multiple entities
+• Handling real-world data imperfections, including missing timestamps and irregular gaps
+
+Compared to existing LeetCode problems such as Human Traffic of Stadium (#601), this question introduces additional complexity through:
+
+• Time-based consecutiveness using fixed 5-minute intervals rather than sequential IDs
+• Multiple independent entities (servers) with separate grouping logic
+• Duration calculations and explicit gap detection
+• More production-relevant edge cases
+
+I would classify this problem as Medium-Hard difficulty. It would be appropriate for SQL interviews involving Data Engineers, Backend or SRE roles with monitoring responsibilities, and senior analyst positions requiring advanced time-series querying skills.
+
+Overall, this problem fills a gap in LeetCode’s catalog by focusing on practical, time-aware SQL patterns that are commonly used in infrastructure monitoring and analytics pipelines.
