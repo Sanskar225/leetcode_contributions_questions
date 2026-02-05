@@ -1,0 +1,291 @@
+Test Case 1: Basic Case (from Example 1)
+Input:
+
+sql
+INSERT INTO server_logs VALUES
+(1, 101, 'up', '2023-01-01 10:00:00'),
+(2, 101, 'down', '2023-01-01 10:05:00'),
+(3, 101, 'down', '2023-01-01 10:10:00'),
+(4, 101, 'down', '2023-01-01 10:15:00'),
+(5, 101, 'down', '2023-01-01 10:20:00'),
+(6, 101, 'down', '2023-01-01 10:25:00'),
+(7, 101, 'down', '2023-01-01 10:30:00'),
+(8, 101, 'up', '2023-01-01 10:35:00');
+Output:
+
+sql
+server_id | downtime_start      | downtime_end        | duration_minutes
+----------+---------------------+---------------------+-----------------
+101       | 2023-01-01 10:05:00 | 2023-01-01 10:30:00 | 25
+Test Case 2: Multiple Servers & Edge Cases (from Example 2)
+Input:
+
+sql
+INSERT INTO server_logs VALUES
+(9, 102, 'down', '2023-01-01 10:00:00'),
+(10, 102, 'down', '2023-01-01 10:05:00'),
+(11, 102, 'up', '2023-01-01 10:10:00'),
+(12, 103, 'down', '2023-01-01 11:00:00'),
+(13, 103, 'down', '2023-01-01 11:05:00'),
+(14, 103, 'down', '2023-01-01 11:10:00'),
+(15, 103, 'down', '2023-01-01 11:15:00'),
+(16, 103, 'down', '2023-01-01 11:20:00'),
+(17, 103, 'down', '2023-01-01 11:25:00'),
+(18, 103, 'down', '2023-01-01 11:30:00'),
+(19, 104, 'down', '2023-01-01 12:00:00'),
+(20, 104, 'down', '2023-01-01 12:10:00');
+Output:
+
+sql
+server_id | downtime_start      | downtime_end        | duration_minutes
+----------+---------------------+---------------------+-----------------
+103       | 2023-01-01 11:00:00 | 2023-01-01 11:30:00 | 30
+Test Case 3: Exactly 6 Consecutive Downs
+Input:
+
+sql
+INSERT INTO server_logs VALUES
+(21, 105, 'down', '2023-01-01 13:00:00'),
+(22, 105, 'down', '2023-01-01 13:05:00'),
+(23, 105, 'down', '2023-01-01 13:10:00'),
+(24, 105, 'down', '2023-01-01 13:15:00'),
+(25, 105, 'down', '2023-01-01 13:20:00'),
+(26, 105, 'down', '2023-01-01 13:25:00'),
+(27, 105, 'up', '2023-01-01 13:30:00');
+Output:
+
+sql
+server_id | downtime_start      | downtime_end        | duration_minutes
+----------+---------------------+---------------------+-----------------
+105       | 2023-01-01 13:00:00 | 2023-01-01 13:25:00 | 25
+Test Case 4: Only 5 Consecutive Downs (Should Not Qualify)
+Input:
+
+sql
+INSERT INTO server_logs VALUES
+(28, 106, 'down', '2023-01-01 14:00:00'),
+(29, 106, 'down', '2023-01-01 14:05:00'),
+(30, 106, 'down', '2023-01-01 14:10:00'),
+(31, 106, 'down', '2023-01-01 14:15:00'),
+(32, 106, 'down', '2023-01-01 14:20:00'),
+(33, 106, 'up', '2023-01-01 14:25:00');
+Output:
+
+sql
+(empty result set)
+Test Case 5: Time Gap Breaks Sequence
+Input:
+
+sql
+INSERT INTO server_logs VALUES
+(34, 107, 'down', '2023-01-01 15:00:00'),
+(35, 107, 'down', '2023-01-01 15:10:00'),  -- 10-minute gap!
+(36, 107, 'down', '2023-01-01 15:15:00');
+Output:
+
+sql
+(empty result set)
+Test Case 6: Multiple Downtime Periods Same Server
+Input:
+
+sql
+INSERT INTO server_logs VALUES
+(37, 108, 'down', '2023-01-01 16:00:00'),
+(38, 108, 'down', '2023-01-01 16:05:00'),
+(39, 108, 'down', '2023-01-01 16:10:00'),
+(40, 108, 'down', '2023-01-01 16:15:00'),
+(41, 108, 'down', '2023-01-01 16:20:00'),
+(42, 108, 'down', '2023-01-01 16:25:00'),  -- First period (6 checks)
+(43, 108, 'up', '2023-01-01 16:30:00'),
+(44, 108, 'down', '2023-01-01 16:35:00'),
+(45, 108, 'down', '2023-01-01 16:40:00'),
+(46, 108, 'down', '2023-01-01 16:45:00'),
+(47, 108, 'down', '2023-01-01 16:50:00'),
+(48, 108, 'down', '2023-01-01 16:55:00'),
+(49, 108, 'down', '2023-01-01 17:00:00');  -- Second period (6 checks)
+Output:
+
+sql
+server_id | downtime_start      | downtime_end        | duration_minutes
+----------+---------------------+---------------------+-----------------
+108       | 2023-01-01 16:00:00 | 2023-01-01 16:25:00 | 25
+108       | 2023-01-01 16:35:00 | 2023-01-01 17:00:00 | 25
+Test Case 7: Starts and Ends with Downtime
+Input:
+
+sql
+INSERT INTO server_logs VALUES
+(50, 109, 'down', '2023-01-01 17:00:00'),
+(51, 109, 'down', '2023-01-01 17:05:00'),
+(52, 109, 'down', '2023-01-01 17:10:00'),
+(53, 109, 'down', '2023-01-01 17:15:00'),
+(54, 109, 'down', '2023-01-01 17:20:00'),
+(55, 109, 'down', '2023-01-01 17:25:00'),
+(56, 109, 'down', '2023-01-01 17:30:00'),
+(57, 109, 'down', '2023-01-01 17:35:00');
+Output:
+
+sql
+server_id | downtime_start      | downtime_end        | duration_minutes
+----------+---------------------+---------------------+-----------------
+109       | 2023-01-01 17:00:00 | 2023-01-01 17:35:00 | 35
+Test Case 8: Mixed Status Throughout
+Input:
+
+sql
+INSERT INTO server_logs VALUES
+(58, 110, 'up', '2023-01-01 18:00:00'),
+(59, 110, 'down', '2023-01-01 18:05:00'),
+(60, 110, 'down', '2023-01-01 18:10:00'),
+(61, 110, 'up', '2023-01-01 18:15:00'),
+(62, 110, 'down', '2023-01-01 18:20:00'),
+(63, 110, 'down', '2023-01-01 18:25:00'),
+(64, 110, 'down', '2023-01-01 18:30:00'),
+(65, 110, 'down', '2023-01-01 18:35:00'),
+(66, 110, 'down', '2023-01-01 18:40:00'),
+(67, 110, 'down', '2023-01-01 18:45:00'),  -- 6 consecutive from 18:20
+(68, 110, 'up', '2023-01-01 18:50:00');
+Output:
+
+sql
+server_id | downtime_start      | downtime_end        | duration_minutes
+----------+---------------------+---------------------+-----------------
+110       | 2023-01-01 18:20:00 | 2023-01-01 18:45:00 | 25
+Test Case 9: Empty Table
+Input:
+
+sql
+-- No data inserted
+Output:
+
+sql
+(empty result set)
+Test Case 10: All 'up' Statuses
+Input:
+
+sql
+INSERT INTO server_logs VALUES
+(69, 111, 'up', '2023-01-01 19:00:00'),
+(70, 111, 'up', '2023-01-01 19:05:00'),
+(71, 111, 'up', '2023-01-01 19:10:00'),
+(72, 111, 'up', '2023-01-01 19:15:00'),
+(73, 111, 'up', '2023-01-01 19:20:00'),
+(74, 111, 'up', '2023-01-01 19:25:00');
+Output:
+
+sql
+(empty result set)
+Test Case 11: Server with No 'down' Checks at All
+Input:
+
+sql
+INSERT INTO server_logs VALUES
+(75, 112, 'up', '2023-01-01 20:00:00'),
+(76, 112, 'up', '2023-01-01 20:05:00'),
+(77, 112, 'up', '2023-01-01 20:10:00'),
+(78, 112, 'up', '2023-01-01 20:15:00'),
+(79, 113, 'down', '2023-01-01 20:20:00'),  -- Different server
+(80, 113, 'down', '2023-01-01 20:25:00');
+Output:
+
+sql
+(empty result set)
+Covers: Servers with zero 'down' checks shouldn't appear at all.
+
+Test Case 12: More Than 6 Consecutive (Long Downtime)
+Input:
+
+sql
+INSERT INTO server_logs VALUES
+(81, 114, 'down', '2023-01-01 21:00:00'),
+(82, 114, 'down', '2023-01-01 21:05:00'),
+(83, 114, 'down', '2023-01-01 21:10:00'),
+(84, 114, 'down', '2023-01-01 21:15:00'),
+(85, 114, 'down', '2023-01-01 21:20:00'),
+(86, 114, 'down', '2023-01-01 21:25:00'),  -- Minimum reached here
+(87, 114, 'down', '2023-01-01 21:30:00'),
+(88, 114, 'down', '2023-01-01 21:35:00'),
+(89, 114, 'down', '2023-01-01 21:40:00'),  -- 10 total consecutive
+(90, 114, 'up', '2023-01-01 21:45:00');
+Output:
+
+sql
+server_id | downtime_start      | downtime_end        | duration_minutes
+----------+---------------------+---------------------+-----------------
+114       | 2023-01-01 21:00:00 | 2023-01-01 21:40:00 | 40
+Covers: Downtime periods longer than minimum requirement should return entire period.
+
+Test Case 13: Single 'down' Check Interrupts Long Sequence
+Input:
+
+sql
+INSERT INTO server_logs VALUES
+(91, 115, 'down', '2023-01-01 22:00:00'),
+(92, 115, 'down', '2023-01-01 22:05:00'),
+(93, 115, 'down', '2023-01-01 22:10:00'),
+(94, 115, 'up', '2023-01-01 22:15:00'),     -- Single 'up' breaks sequence
+(95, 115, 'down', '2023-01-01 22:20:00'),
+(96, 115, 'down', '2023-01-01 22:25:00'),
+(97, 115, 'down', '2023-01-01 22:30:00'),
+(98, 115, 'down', '2023-01-01 22:35:00'),
+(99, 115, 'down', '2023-01-01 22:40:00');  -- 5 in second group, doesn't qualify
+Output:
+
+sql
+(empty result set)
+Covers: Even a single 'up' check should break consecutive sequence.
+
+Test Case 14: Multiple Servers with Mixed Qualifying Periods
+Input:
+
+sql
+-- Server 116: Qualifies
+INSERT INTO server_logs VALUES
+(100, 116, 'down', '2023-01-02 08:00:00'),
+(101, 116, 'down', '2023-01-02 08:05:00'),
+(102, 116, 'down', '2023-01-02 08:10:00'),
+(103, 116, 'down', '2023-01-02 08:15:00'),
+(104, 116, 'down', '2023-01-02 08:20:00'),
+(105, 116, 'down', '2023-01-02 08:25:00'),  -- 6 checks, qualifies
+
+-- Server 117: Doesn't qualify (only 5)
+(106, 117, 'down', '2023-01-02 09:00:00'),
+(107, 117, 'down', '2023-01-02 09:05:00'),
+(108, 117, 'down', '2023-01-02 09:10:00'),
+(109, 117, 'down', '2023-01-02 09:15:00'),
+(110, 117, 'down', '2023-01-02 09:20:00'),
+
+-- Server 118: Qualifies with exact 6
+(111, 118, 'down', '2023-01-02 10:00:00'),
+(112, 118, 'down', '2023-01-02 10:05:00'),
+(113, 118, 'down', '2023-01-02 10:10:00'),
+(114, 118, 'down', '2023-01-02 10:15:00'),
+(115, 118, 'down', '2023-01-02 10:20:00'),
+(116, 118, 'down', '2023-01-02 10:25:00');
+Output:
+
+sql
+server_id | downtime_start      | downtime_end        | duration_minutes
+----------+---------------------+---------------------+-----------------
+116       | 2023-01-02 08:00:00 | 2023-01-02 08:25:00 | 25
+118       | 2023-01-02 10:00:00 | 2023-01-02 10:25:00 | 25
+Covers: Multiple independent servers with mixed results, proper ordering.
+
+Test Case 15: Unordered Timestamps (Crucial Edge Case)
+Input:
+
+sql
+-- Timestamps NOT in chronological order!
+INSERT INTO server_logs VALUES
+(117, 119, 'down', '2023-01-03 14:20:00'),
+(118, 119, 'down', '2023-01-03 14:05:00'),  -- Earlier than previous
+(119, 119, 'down', '2023-01-03 14:15:00'),
+(120, 119, 'down', '2023-01-03 14:10:00'),
+(121, 119, 'down', '2023-01-03 14:00:00'),  -- Earliest
+(122, 119, 'down', '2023-01-03 14:25:00');  -- Latest
+Output:
+
+sql
+server_id | downtime_start      | downtime_end        | duration_minutes
+----------+---------------------+---------------------+-----------------
+119       | 2023-01-03 14:00:00 | 2023-01-03 14:25:00 | 25
