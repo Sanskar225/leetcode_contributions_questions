@@ -1,0 +1,24 @@
+Solution Approach:
+
+This problem requires three key components:
+
+Priority Queue to schedule tasks by priority (higher priority first)
+
+Concurrency Control to limit simultaneous execution
+
+Order Preservation to return results in original task order
+
+Algorithm:
+
+Handle edge case: if tasks and priorities arrays differ in length, return empty array
+
+Create indexed tasks with their original positions for order preservation
+
+Sort tasks by priority (descending) and original index (ascending for stability)
+
+Process tasks with concurrency limit using a worker pool pattern
+
+Collect results in original order using the stored indices
+
+Time Complexity: O(n log n) for sorting + O(n) for execution
+Space Complexity: O(n) for storing results and task metadata

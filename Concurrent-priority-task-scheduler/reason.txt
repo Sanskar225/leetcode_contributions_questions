@@ -1,0 +1,17 @@
+This question tests a practical and increasingly important JavaScript skill: managing concurrent asynchronous operations with priority scheduling. I've seen variants of this problem in:
+
+1) Technical Interviews: At Google and Meta onsite interviews (2022-2023), where candidates were asked to design a task scheduler with priority execution. The core challenge was implementing efficient priority-based concurrency control.
+
+2) Coding Challenges: Similar problems appear in take-home assessments for senior frontend roles, testing both algorithmic thinking (priority queues) and async/await mastery.
+
+3) Real-world Relevance: Modern web applications frequently need to manage concurrent API calls, image loading, or data processing with priority constraints (e.g., critical UI updates vs background sync).
+
+4) Difficulty: Medium - It combines data structures (priority queue/heap) with asynchronous JavaScript patterns, making it accessible yet challenging enough to differentiate candidates.
+
+Special Motivation:
+
+There's a gap in LeetCode's JavaScript problems for concurrency control with priorities (#2636 covers concurrency without priorities; #2721 is simpler promise execution).
+
+This problem teaches three important concepts in one: priority scheduling, concurrency limits, and order preservation - all essential for scalable frontend applications.
+
+It's language-agnostic in concept but tests JavaScript-specific async/await patterns that developers use daily.
