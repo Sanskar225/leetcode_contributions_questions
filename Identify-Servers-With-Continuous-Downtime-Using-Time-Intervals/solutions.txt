@@ -1,0 +1,126 @@
+Solution Approach
+
+This problem follows the Gaps and Islands pattern, commonly used to identify consecutive sequences in time-series data. The key idea is to detect when consecutive 'down' checks occur exactly 5 minutes apart and group them into downtime “islands.”
+
+Key Steps
+
+Filter relevant data
+Keep only rows where status = 'down'.
+
+Detect continuity
+Compare each row with the previous one to determine whether the checks are consecutive.
+
+Create groups
+Assign a group ID that increments whenever the sequence breaks.
+
+Aggregate
+For each group, calculate the downtime start time, end time, and duration.
+
+Filter results
+Keep only groups with at least 6 consecutive checks.
+
+SQL Solution
+WITH down_logs AS (
+    SELECT
+        server_id,
+        checked_at,
+        -- Determine whether this row starts a new consecutive group
+        CASE
+            WHEN LAG(checked_at) OVER (
+                PARTITION BY server_id
+                ORDER BY checked_at
+            ) = checked_at - INTERVAL 5 MINUTE
+            THEN 0  -- Continue existing group
+            ELSE 1  -- Start a new group
+        END AS is_new_group
+    FROM server_logs
+    WHERE status = 'down'
+),
+grouped AS (
+    SELECT
+        server_id,
+        checked_at,
+        -- Generate a unique group ID using a running sum
+        SUM(is_new_group) OVER (
+            PARTITION BY server_id
+            ORDER BY checked_at
+        ) AS grp
+    FROM down_logs
+)
+SELECT
+    server_id,
+    MIN(checked_at) AS downtime_start,
+    MAX(checked_at) AS downtime_end,
+    TIMESTAMPDIFF(
+        MINUTE,
+        MIN(checked_at),
+        MAX(checked_at)
+    ) AS duration_minutes
+FROM grouped
+GROUP BY server_id, grp
+HAVING COUNT(*) >= 6   -- At least 6 consecutive checks
+ORDER BY server_id, downtime_start;
+
+Why This Works
+
+LAG(checked_at) retrieves the previous timestamp for each server.
+
+checked_at - INTERVAL 5 MINUTE verifies whether checks are exactly 5 minutes apart.
+
+SUM(is_new_group) OVER (...) creates a running counter that increases only when a new group begins.
+
+GROUP BY server_id, grp isolates each consecutive downtime period.
+
+HAVING COUNT(*) >= 6 enforces the minimum downtime length requirement.
+
+Example Walkthrough
+Server 101 (Example 1)
+
+Checks at:
+
+10:05, 10:10, 10:15, 10:20, 10:25, 10:30
+
+
+All checks are exactly 5 minutes apart
+
+is_new_group = 1 only for the first record, then 0 for the rest
+
+All rows share the same grp value
+
+Count = 6 → qualifies
+
+Server 104 (Example 2)
+
+Checks at:
+
+12:00, 12:10
+
+
+Gap is 10 minutes
+
+is_new_group = 1 for both rows
+
+Different grp values → separate groups
+
+Count = 1 → does not qualify
+
+Complexity Analysis
+
+Time Complexity:
+O(n log n) (sorting) + O(n) (window scan) ≈ O(n log n)
+
+Space Complexity:
+O(n) for window function computations
+
+Optimization:
+Early filtering with WHERE status = 'down' significantly reduces data volume.
+
+Alternative Considerations
+
+This solution can be extended to:
+
+Support variable check intervals
+
+Allow partial downtime detection (e.g., 4 out of 6 checks)
+
+Incorporate recovery time gaps between downtime periods
