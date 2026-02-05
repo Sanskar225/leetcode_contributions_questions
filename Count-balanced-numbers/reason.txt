@@ -1,0 +1,10 @@
+
+designed this question myself while exploring number patterns and digit manipulation.
+
+I haven’t seen this question anywhere else (not on LeetCode, Codeforces, or GeeksforGeeks). It’s an original idea that introduces beginners to the concept of processing digits and position-based conditions in numbers.
+
+The question difficulty is Easy — it mainly requires loops, modulo operations, and basic logic, making it suitable for people learning number-based problems.
+
+What makes this question special is that it combines simple arithmetic and logical reasoning in a new way. It also encourages clean code practices (helper functions, digit extraction, and understanding position-based conditions).
+
+I’m contributing this question to help beginners strengthen their confidence in number manipulation problems and develop good habits for reasoning about parity-based or positional patterns in digits.

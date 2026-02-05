@@ -1,0 +1,7 @@
+A balanced number is a number where the sum of digits at even positions is equal to the sum of digits at odd positions, counting positions from right to left (the rightmost digit has position 1).
+
+You are given an array of positive integers nums.
+Return the count of balanced numbers in the array.
+
+ 
+
